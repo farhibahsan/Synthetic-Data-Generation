@@ -7,26 +7,19 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
     route_label_dict = {}
     num_alternatives = random.randint(2, max(max_alternatives, 2))
     if debug:
-        print("Num alternatives: %d", num_alternatives)
+        print("Num alternatives:", num_alternatives)
     route_features = np.zeros((num_alternatives, 3))
     correlation_matrix = np.zeros((num_alternatives, num_alternatives))
     truth_values = np.zeros((num_alternatives))
 
     for i in range(num_alternatives):
-        a_rand = random.uniform(0, 1)
-        b_rand = random.uniform(0, 1)
-        c_rand = random.uniform(0, 1)
         route_label = random.uniform(0, 1)
-        if debug:
-            print("====================================================")
-            print("Iteration", i)
-            print("Value of a:", a_rand)
-            print("Value of b:", b_rand)
-            print("Value of c:", c_rand)
-            print("Value of route label:", route_label)
-
-        route_features[i] = np.array([a_rand, b_rand, c_rand])
         route_label_dict.update({i:route_label})
+
+        if debug:
+            print("============================================")
+            print("Iteration:", i)
+            print("-------------------")
 
         b_eq = 0
         e_eq = 0
@@ -64,8 +57,18 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
         u_eq = v_eq + random.uniform(0, 1)
         truth_values[i] = u_eq
 
-        # if debug:
-
+        route_features[i] = np.array([a_eq, b_eq, c_eq])
+        if debug:
+            print("Truth equation values:")
+            print("a:", a_eq)
+            print("b:", b_eq)
+            print("c:", c_eq)
+            print("d:", d_eq)
+            print("e:", e_eq)
+            print("g:", g_eq)
+            print("h:", h_eq)
+            print("v:", v_eq)
+            print("u:", u_eq)
 
     prob_y = np.exp(truth_values) / np.sum(np.exp(truth_values))
     index_y = np.random.choice(num_alternatives, p=prob_y)
