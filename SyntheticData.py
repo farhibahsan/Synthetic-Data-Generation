@@ -28,7 +28,7 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
 
             returns:
                 route_features: a num_alternatives x 3 matrix containing the alternative routes and their features (num_alternatives is chosen randomly from [2, max_alternatives])
-                corr: the correlation matrix for the alternative routes
+                correlation_matrix: the correlation matrix for the alternative routes
                 y: the y matrix, shows which route the actor chose
 
     """
@@ -38,10 +38,13 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
     if debug:
         print("Num alternatives:", num_alternatives)
 
+    # Initializing the return values
     route_features = np.zeros((num_alternatives, 3))
     correlation_matrix = np.zeros((num_alternatives, num_alternatives))
     truth_values = np.zeros((num_alternatives))
 
+    # Iterate through all alternative route pairs and determine their correlation, adding it to the correlation matrix
+    # Also determine the maximum correlation a route experiences, used to determine the number of route sections it has
     for alt in range(num_alternatives):
         label = random.uniform(0, 1)
         route_labels.append(label)
@@ -59,6 +62,7 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
         print("route_labels:", route_labels)
         print("max_corr:", max_corr)
 
+    # Iterate through all routes and perform calculations of the truth equation on each
     for alt in range(num_alternatives):
 
         if debug:
@@ -68,18 +72,12 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
 
         b_eq = 0
         e_eq = 0
-        if max_corr[alt] == graphon_p:
-            b_eq = 5 + (3 * graphon_p + random.uniform(0, 1)
-                + 3 * (1 - graphon_p) + random.uniform(0, 1)) + random.uniform(0, 1)
-            e_eq = (graphon_p + random.uniform(0, 1)
-                + (1 - graphon_p) + random.uniform(0, 1)) + random.uniform(0, 1)
-        else:
-            b_eq = 5 + (3 * graphon_p + random.uniform(0, 1) 
-                + 3 * (graphon_q - graphon_p) + random.uniform(0, 1)
-                + 3 * (1 - graphon_q) + random.uniform(0, 1)) + random.uniform(0, 1)
-            e_eq = (graphon_p + random.uniform(0, 1)
-                + (graphon_q - graphon_p) + random.uniform(0, 1)
-                + (1 - graphon_q)) + random.uniform(0, 1) 
+        b_eq = 5 + (3 * graphon_p + random.uniform(0, 1) 
+            + 3 * (graphon_q - graphon_p) + random.uniform(0, 1)
+            + 3 * (1 - graphon_q) + random.uniform(0, 1)) + random.uniform(0, 1)
+        e_eq = (graphon_p + random.uniform(0, 1)
+            + (graphon_q - graphon_p) + random.uniform(0, 1)
+            + (1 - graphon_q)) + random.uniform(0, 1) 
 
         h_eq = random.uniform(0, 1)
         g_eq = random.uniform(0, 1)
@@ -104,7 +102,7 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
             print("v:", v_eq)
             print("u:", u_eq)
        
-
+    # Perform a softmax over the utility values
     prob_y = np.exp(truth_values) / np.sum(np.exp(truth_values))
     index_y = np.random.choice(num_alternatives, p=prob_y)
     y = np.zeros(num_alternatives)
