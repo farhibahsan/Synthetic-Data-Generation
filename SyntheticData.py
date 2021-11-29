@@ -40,7 +40,7 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
 
     # Initializing the return values
     route_features = np.zeros((num_alternatives, 3))
-    correlation_matrix = np.zeros((num_alternatives, num_alternatives))
+    correlation_matrix = np.ones((num_alternatives, num_alternatives))
     truth_values = np.zeros((num_alternatives))
 
     # Iterate through all alternative route pairs and determine their correlation, adding it to the correlation matrix
@@ -110,15 +110,15 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
 
     return route_features, correlation_matrix, y
 
-def main():
-    route_features, corr, y = generateData(5, 1, 1, 1, 1, debug=True)
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("Route Features:")
-    print(route_features)
-    print("Correlation matrix:")
-    print(corr)
-    print("Y matrix:")
-    print(y)
+# def main():
+#     route_features, corr, y = generateData(10, 1, 1, 1, 1, debug=True)
+#     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+#     print("Route Features:")
+#     print(route_features)
+#     print("Correlation matrix:")
+#     print(corr)
+#     print("Y matrix:")
+#     print(y)
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
