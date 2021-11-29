@@ -57,7 +57,7 @@ class CNet(torch.nn.Module):
         return F.softmax(u, dim=0)
 
 def train(k):
-    model = CNet(k)
+    model = Net(k)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
     model.train()
 

@@ -1,5 +1,5 @@
 import numpy as np
-import scipy as sp
+import torch
 import random
 
 def get_corr_value(x, y, graphon_vertical, graphon_horizontal, graphon_p, graphon_q):
@@ -11,7 +11,7 @@ def get_corr_value(x, y, graphon_vertical, graphon_horizontal, graphon_p, grapho
         return graphon_q
 
 
-def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_vertical_boundary=0.5, graphon_horizontal_boundary=0.5, graphon_p=0.2, graphon_q=0.8, debug=False):
+def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_vertical_boundary=0.5, graphon_horizontal_boundary=0.5, graphon_p=0.2, graphon_q=0.8, debug=False, gpu=False):
     """ Generates synthetic data for a single actor
 
             Keyword arguments:
@@ -32,6 +32,14 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
                 y: the y matrix, shows which route the actor chose
 
     """
+
+    # Define the gpu if desire to run on gpu
+    cuda0 = None
+    if gpu:
+        print("Cuda is available:", torch.cuda.is_available())
+        print("Num cuda devices:", torch.cuda.device_count())
+        cuda0 = torch.device('cuda:0')
+
     route_labels = []
     max_corr = []
     num_alternatives = random.randint(2, max(max_alternatives, 2))
@@ -108,7 +116,33 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
     y = np.zeros(num_alternatives)
     y[index_y] = 1
 
-    return route_features, correlation_matrix, y
+    edge_attr = []
+    edge_index = []
+    # A very inefficient way of generating edge_attr and edge_index, as it essentially loops over the data a third time
+    # The best way to approach this would be to refactor and create these as the generation proceeds, but time is limited
+    for i in range(correlation_matrix.shape[0]):
+        for j in range(correlation_matrix.shape[1]):
+            if i == j or i < j:
+                continue
+            else:
+                edge_index.append([i, j])
+                edge_attr.append(correlation_matrix[i][j])                                                                                                                                                                                                                                                                                                                                                              
+
+    x = torch.from_numpy(route_features)
+    y = torch.from_numpy(y)
+    edge_attr = torch.tensor(edge_attr)
+    edge_index = torch.tensor(edge_index, dtype=torch.int64).t().contiguous()
+
+    if debug:
+        print("x:", list(x.size()))
+        print("y:", list(y.size()))
+        print("attr:", list(edge_attr.size()))
+        print("index:", list(edge_index.size()))
+
+    if gpu:
+        return x.float().to(device=cuda0), y.float().to(device=cuda0), edge_attr.float().to(device=cuda0), edge_index.to(device=cuda0)
+
+    return x.float(), y.float(), edge_attr.float(), edge_index
 
 # def main():
 #     route_features, corr, y = generateData(10, 1, 1, 1, 1, debug=True)
