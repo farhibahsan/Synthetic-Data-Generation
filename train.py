@@ -7,16 +7,15 @@ import numpy as np
 import torch
 import argparse
 import sys, random
+import os
 
 with open("./syntheticdata", "rb") as f:
     data_list = pickle.load(f)
 
-
-
 class Net(torch.nn.Module):
-    def __init__(self, k):
+    def __init__(self, k, conv1, conv2):
         super(Net, self).__init__()
-        self.conv = ChebConv(2, 2, k)
+        self.conv = ChebConv(conv1, conv2, k)
         self.W = torch.nn.Parameter(torch.rand(3), requires_grad=True)
         self.b = torch.nn.Parameter(torch.zeros(1), requires_grad=True)
         self.relu = ReLU()
@@ -56,8 +55,8 @@ class CNet(torch.nn.Module):
 
         return F.softmax(u, dim=0)
 
-def train(k):
-    model = Net(k)
+def train(k, conv1, conv2):
+    model = Net(k, conv1, conv2)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
     model.train()
 
@@ -113,20 +112,24 @@ def parse_args(args):
     return parser.parse_known_args(args)[0]
 
 if __name__ == "__main__":
-    flags = parse_args(sys.argv[1:])
+    os.environ['CUDA_VISIBLE_DEVICES']='0'
+    # flags = parse_args(sys.argv[1:])
     result = {
         "training": [],
         "testing": []
     }
     for i in range(10):
-        temp = train(flags.k)
-        result["training"].append(temp["training"])
-        result["testing"].append(temp["testing"])
+        for k in range(1, 5):
+            for conv1 in range(2, 5):
+                for conv2 in range(2, 5):
+                    temp = train(k, conv1, conv2)
+                    result["training"].append(temp["training"])
+                    result["testing"].append(temp["testing"])
     
     print("training:")
-    for i in range(10):
+    for i in range(20):
         print(result["training"][i])
     
     print("testing:")
-    for i in range(10):
+    for i in range(20):
         print(result["testing"][i])

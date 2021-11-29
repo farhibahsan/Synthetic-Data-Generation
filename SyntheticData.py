@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import random
+import os
 
 def get_corr_value(x, y, graphon_vertical, graphon_horizontal, graphon_p, graphon_q):
     """ Helper method for generate data that retrieves the correlation value between two alternative routes"""
@@ -34,11 +35,8 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
     """
 
     # Define the gpu if desire to run on gpu
-    cuda0 = None
     if gpu:
-        print("Cuda is available:", torch.cuda.is_available())
-        print("Num cuda devices:", torch.cuda.device_count())
-        cuda0 = torch.device('cuda:0')
+        os.environ['CUDA_VISIBLE_DEVICES']='0'
 
     route_labels = []
     max_corr = []
@@ -139,8 +137,8 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
         print("attr:", list(edge_attr.size()))
         print("index:", list(edge_index.size()))
 
-    if gpu:
-        return x.float().to(device=cuda0), y.float().to(device=cuda0), edge_attr.float().to(device=cuda0), edge_index.to(device=cuda0)
+    # if gpu:
+    #     return x.float().to(device=cuda0), y.float().to(device=cuda0), edge_attr.float().to(device=cuda0), edge_index.to(device=cuda0)
 
     return x.float(), y.float(), edge_attr.float(), edge_index
 
