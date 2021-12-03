@@ -13,9 +13,9 @@ with open("./syntheticdata", "rb") as f:
     data_list = pickle.load(f)
 
 class Net(torch.nn.Module):
-    def __init__(self, k, conv1, conv2):
+    def __init__(self, k):
         super(Net, self).__init__()
-        self.conv = ChebConv(conv1, conv2, k)
+        self.conv = ChebConv(2, 2, k)
         self.W = torch.nn.Parameter(torch.rand(3), requires_grad=True)
         self.b = torch.nn.Parameter(torch.zeros(1), requires_grad=True)
         self.relu = ReLU()
@@ -55,8 +55,8 @@ class CNet(torch.nn.Module):
 
         return F.softmax(u, dim=0)
 
-def train(k, conv1, conv2):
-    model = Net(k, conv1, conv2)
+def train(k):
+    model = Net(k)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
     model.train()
 
@@ -118,18 +118,27 @@ if __name__ == "__main__":
         "training": [],
         "testing": []
     }
-    for i in range(10):
-        for k in range(1, 5):
-            for conv1 in range(2, 5):
-                for conv2 in range(2, 5):
-                    temp = train(k, conv1, conv2)
-                    result["training"].append(temp["training"])
-                    result["testing"].append(temp["testing"])
+    for k in range(1, 11):
+        for i in range(3):
+                temp = train(k)
+                result["training"].append(temp["training"])
+                result["testing"].append(temp["testing"])
     
     print("training:")
-    for i in range(20):
-        print(result["training"][i])
+    for i in range(9):
+        print("")
+        print("=====================")
+        print("k = ", i)
+        print("Run 1: ", result["training"][i * 3])
+        print("Run 2: ", result["training"][i * 3 + 1])
+        print("Run 3: ", result["training"][i * 3 + 2])
     
+    print("~~~~~~~~~~~~~~~~~~~~~~~")
     print("testing:")
     for i in range(20):
-        print(result["testing"][i])
+        print("")
+        print("=====================")
+        print("k = ", i)
+        print("Run 1: ", result["testing"][i * 3])
+        print("Run 2: ", result["testing"][i * 3 + 1])
+        print("Run 3: ", result["testing"][i * 3 + 2])

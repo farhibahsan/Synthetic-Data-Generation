@@ -137,9 +137,6 @@ def generateData(max_alternatives, beta_a, beta_b, beta_c_d, beta_e, graphon_ver
         print("attr:", list(edge_attr.size()))
         print("index:", list(edge_index.size()))
 
-    # if gpu:
-    #     return x.float().to(device=cuda0), y.float().to(device=cuda0), edge_attr.float().to(device=cuda0), edge_index.to(device=cuda0)
-
     return x.float(), y.float(), edge_attr.float(), edge_index
 
 # def main():
